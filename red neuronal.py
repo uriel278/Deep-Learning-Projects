@@ -1,8 +1,14 @@
-#import numpy as np # Importando Numpy porque dependemos de ella.
-import math
-import numpy as np
-from time import sleep
+#!/usr/bin/env python
+# coding: utf-8
 
+# <h3> Implementing a feedforward net from scratch using Numpy and Python OOP </h3>
+# 
+
+# In[9]:
+
+
+import numpy as np
+import matplotlib.pyplot as plt
 
 #Todas las funciones están pensadas para ser implementadas sobre arrays de Numpy
 def identity(x):
@@ -12,10 +18,10 @@ def identityderiv(x):
     return np.ones(x.shape)
 
 def relu(x):
-    return (x>=0)*x         #Problemas con esto
+    return np.maximum(x,0)
 
 def reluderiv(x):
-    return (x>=0)*1        #Problemas con esto
+    return np.heaviside(x,0)
 
 def sigmoid(x):
     return 1/(1+np.exp(-x))
@@ -43,12 +49,7 @@ class layer():      #¿Hará falta una capa para nodos?
         return self.valor.shape
     def __str__(self):
         return str(self.valor)
-# Pruebas para ver que funcione la clase
-prueba = np.array([1,5,-48,-7,8,9,-55,0,0.0001,454,-888])
-prueba.shape = (1,11)
-# layer_prueba = layer('none',prueba,'identity')
-# print(layer_prueba)
-# print(layer_prueba.prim())
+
 
 class NN():                         
     def __init__(self,size):
@@ -103,12 +104,9 @@ class NN():
             #Mostrando el progreso del entrenamiento        
             print("\rI",f" :{j+1}/{iterations} "," Error asociado: ",error/data_size,
             f" Ejemplos clasificadas correctamente:{preds}/{data_size}",sep='',end='',flush=True)
-            
-                
 
 
-
-
+# In[2]:
 
 
 np.random.seed(1)
@@ -123,17 +121,40 @@ for i,j in enumerate(labels):
     one_hot_labels[i][j] = 1
 labels = one_hot_labels
 ##Test images from MNIST dataset for model validation and hyperparameter tunning
-# test_images = x_test.reshape(len(x_test),28**2)/255
-# test_labels = np.zeros((len(y_test),10))
-# for i,j in enumerate(y_test):
-    # test_labels[i][j] = 1
+test_images = x_test.reshape(len(x_test),28**2)/255
+test_labels = np.zeros((len(y_test),10))
+for i,j in enumerate(y_test):
+    test_labels[i][j] = 1
+
+
+# In[4]:
+
 
 lr,iterations,hidden_size,pixels_per_image,num_labels = (0.005,350,40,784,10)   #Hyperparameters for fun
 
 
 nn_mnist = NN(784)
 nn_mnist.add_layer('hidden', size=40, activation='relu')
-nn_mnist.add_layer('hidden', size=60, activation='sigmoid')
-# nn_mnist.add_layer('output', size=10, activation='sigmoid')
 nn_mnist.add_layer('output', size=10, activation='identity')
-nn_mnist.train(images, labels, lr, iterations)
+nn_mnist.train(images, labels, lr, iterations)   #Descomentar para la presentación
+
+
+# <h2>Una demostración</h2>
+
+# In[72]:
+
+
+index = np.random.randint(999)   #Con el index 1, 402, 507 hay error
+imagen = test_images[index:index+1]
+predicted_class = nn_mnist.predict(imagen)
+predicted_digit = np.argmax(predicted_class)
+plt.imshow(imagen.reshape([28,28]),cmap='gray')
+print('La red neuronal reconoce el dígito:',
+      predicted_digit, '\nY en realidad es un: ',np.argmax(test_labels[index:index+1]))
+
+
+# In[ ]:
+
+
+
+
